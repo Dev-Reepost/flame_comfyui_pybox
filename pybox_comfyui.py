@@ -412,17 +412,20 @@ class ComfyUIBaseClass(pybox.BaseClass):
         if self.client_id and self.prompt_id:
             self.set_host_info()
             print(f'Workflow execution status')
-            response = prompt_execution(self.server_address, self.client_id, self.prompt_id["prompt_id"])
-            if response:
-                self.processing = bool(response["node"] and response["node"]["type"] == ComfyUIStatus.EXECUTING)
-                if self.processing:
-                    self.set_ui_processing_color(Color.BLUE, Status.EXECUTING)
+            while(True):
+                response = prompt_execution(self.server_address, self.client_id, self.prompt_id["prompt_id"])
+                if response:
+                    self.processing = bool(response["node"] and response["node"]["type"] == ComfyUIStatus.EXECUTING)
+                    if self.processing:
+                        self.set_ui_processing_color(Color.BLUE, Status.EXECUTING)
+                    else:
+                        self.set_ui_processing_color(Color.GREEN, Status.PROCESSED)
+                        break
                 else:
-                    self.set_ui_processing_color(Color.GREEN, Status.PROCESSED)
-            else:
-                self.processing = False
-                self.set_global_element_value(UI_SUBMIT, False)
-                self.set_ui_processing_color(Color.RED, Status.FAILED)
+                    self.processing = False
+                    self.set_global_element_value(UI_SUBMIT, False)
+                    self.set_ui_processing_color(Color.RED, Status.FAILED)
+                    break
         else:
             if self.processing:
                 self.processing = False
