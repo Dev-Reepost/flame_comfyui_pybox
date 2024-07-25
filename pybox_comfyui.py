@@ -5,7 +5,7 @@ import shutil
 import tempfile
 from enum import Enum
 from pathlib import Path
-
+from pprint import pprint
 import pybox_v1 as pybox
 
 from comfyui_client import COMFYUI_HOSTNAME
@@ -415,7 +415,9 @@ class ComfyUIBaseClass(pybox.BaseClass):
             while(True):
                 response = prompt_execution(self.server_address, self.client_id, self.prompt_id["prompt_id"])
                 if response:
-                    self.processing = bool(response["node"] and response["node"]["type"] == ComfyUIStatus.EXECUTING)
+                    self.processing = bool(response["node"] and 
+                                            response["node"]["type"] in [ComfyUIStatus.EXECUTING, 
+                                                                        ComfyUIStatus.EXECUTION_CACHED])
                     if self.processing:
                         self.set_ui_processing_color(Color.BLUE, Status.EXECUTING)
                     else:
@@ -722,8 +724,7 @@ class ComfyUIBaseClass(pybox.BaseClass):
             elif elem["name"] == UI_INCVER:
                 if self.get_global_element_value(UI_INCVER):
                     self.increment_version()
-            
-
+        
         self.print_flame_metadata()
     
         
